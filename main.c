@@ -1,24 +1,27 @@
 #include "stm32f10x.h"
 #include "sys.h"
+#include "usart.h"
 #include "colorful_led.h"
 
 int main(void)
   { 
-		Stm32_Clock_Init(9);						//Íâ²¿Ê±ÖÓ8Mhz 9±¶Æµ  8*9= 72mhz±¶Æµ72mhz
-		MY_NVIC_PriorityGroupConfig(2);	//=====ÖĞ¶ÏÓÅÏÈ¼¶·Ö×é		
-		uart_init(115200);	            //=====´®¿Ú³õÊ¼»¯Îª
-		JTAG_Set(JTAG_SWD_DISABLE);     //=====¹Ø±ÕJTAG½Ó¿Ú
-		JTAG_Set(SWD_ENABLE);           //=====´ò¿ªSWD½Ó¿Ú ¿ÉÒÔÀûÓÃÖ÷°åµÄSWD½Ó¿Úµ÷ÊÔ
+		Stm32_Clock_Init(9);						//å¤–éƒ¨æ—¶é’Ÿ8Mhz 9å€é¢‘  8*9= 72mhzå€é¢‘72mhz
+		MY_NVIC_PriorityGroupConfig(2);	//=====ä¸­æ–­ä¼˜å…ˆçº§åˆ†ç»„		
+		uart_init(115200);	            //=====ä¸²å£åˆå§‹åŒ–ä¸º
+		JTAG_Set(JTAG_SWD_DISABLE);     //=====å…³é—­JTAGæ¥å£
+		JTAG_Set(SWD_ENABLE);           //=====æ‰“å¼€SWDæ¥å£ å¯ä»¥åˆ©ç”¨ä¸»æ¿çš„SWDæ¥å£è°ƒè¯•
 
-		colorful_led_Init();            //=====ìÅ²ÊµÆ³õÊ¼»¯
-		//SysTick_Config(72000000/1000);		//µÎ´ğ¶¨Ê±Æ÷£¬Ã¿1ms´¥·¢Ò»´ÎÖĞ¶Ï
-    
-		//L_runingled();                  //Ç°µÆÌØĞ§
-		R_runingled();                //ºóµÆÌØĞ§
-		/**Ö÷Òª³ÌĞò**/
+		colorful_led_Init();            //=====ç‚«å½©ç¯åˆå§‹åŒ–
+		printf("QSTé’è½¯\r\n")ï¼›
+		/**ä¸»è¦ç¨‹åº**/
 	while(1)
 	{
-		
+		if(USART_RX_STA==1)  
+			L_runingled();
+      R_runingled();      
+		  USART_RX_STA = 0;   
+		  count = 0; 
+		delay_ms(100);
 	}
 }
 	
