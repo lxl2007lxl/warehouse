@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <unistd.h>
+#include "hal_bsp_ap3216c.h"
+
+// 改名！不再叫app_main
+void ap3216_demo_task(void)
+{
+    uint16_t als_val, ps_val;
+    printf("AP3216C 传感器测试开始\r\n");
+
+    if(AP3216C_Init() != 0)
+    {
+        printf("AP3216C 初始化失败！检查I2C接线\r\n");
+        while(1)
+        {
+            sleep(1);
+        }
+    }
+    printf("AP3216C 初始化成功\r\n");
+
+    while(1)
+    {
+        als_val = AP3216C_Read_ALS();
+        ps_val  = AP3216C_Read_PS();
+        printf("光照ALS:%d  接近PS:%d \r\n", als_val, ps_val);
+        sleep(1);
+    }
+}
+
