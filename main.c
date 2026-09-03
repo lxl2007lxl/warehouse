@@ -1,59 +1,69 @@
-#include "stm32f10x.h"
-#include "sys.h"
-#include "usart.h"
-#include "colorful_led.h"
-#include "Delay.h"
+/* USER CODE BEGIN Includes */
+#include "car_driver.h"
+/* USER CODE END Includes */
 
-#include "motor.h"
-#include "encoder.h"
-#include "control_system.h"
-#define SPEED  5000 
-extern u8 count;
 int main(void)
-  {
-		
-		
-		Motor_Init();
-		RCC->CSR |=1<<24;
-		Stm32_Clock_Init(9);						//ÃÃ¢Â²Â¿ÃŠÂ±Ã–Ã“8Mhz 9Â±Â¶Ã†Âµ  8*9= 72mhzÂ±Â¶Ã†Âµ72mhz
-		MY_NVIC_PriorityGroupConfig(2);	//=====Ã–ÃÂ¶ÃÃ“Ã…ÃÃˆÂ¼Â¶Â·Ã–Ã—Ã©		
-		uart_init(115200);	            //=====Â´Â®Â¿ÃšÂ³ÃµÃŠÂ¼Â»Â¯ÃŽÂª115200
-		JTAG_Set(JTAG_SWD_DISABLE);     //=====Â¹Ã˜Â±Ã•JTAGÂ½Ã“Â¿Ãš
-		JTAG_Set(SWD_ENABLE);           //=====Â´Ã²Â¿ÂªSWDÂ½Ã“Â¿Ãš Â¿Ã‰Ã’Ã”Ã€Ã»Ã“ÃƒÃ–Ã·Â°Ã¥ÂµÃ„SWDÂ½Ã“Â¿ÃšÂµÃ·ÃŠÃ”
-    PWM_Init(7199,9);
-		
-		colorful_led_Init();            //=====Ã¬Ã…Â²ÃŠÂµÃ†Â³ÃµÃŠÂ¼Â»Â¯
-//Encoder_Init_TIM2();  //???TIM2 PA0 PA1
-   // Encoder_Init_TIM3(); 
-//SysTick_Config(72000000/1000); 		
-		printf("QSTÃ‡Ã ÃˆÃ­\r\n");
-		/**Ã–Ã·Ã’ÂªÂ³ÃŒÃÃ²**/
-	
-	
-while(1)
 {
-  Set_Pwm(5000, 5000);
-		delay_ms(7000);
-		
-		//??
-		Set_Pwm(0,0);
-		delay_ms(100);
-		
-		//??5?
-		Set_Pwm(-2500, -2500
-	
-	);
-		delay_ms(7000);
-		
-		//??
-		Set_Pwm(0,0);
-		delay_ms(100);
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
 
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE BEGIN 3 */
+    /*==================== ¡¾Ä£¿é5£ºÖ÷Ñ­»·ÒµÎñÂß¼­Ä£¿é¡¿ ====================*/
+    float dist = get_hcsr04_distance();
+    uint8_t black_flag = read_black_line();
 
-   // static int last_L = 0;
-   // static int last_R = 0;
+    //Âß¼­1£º¼ì²âµ½ºÚÏß£¬ÓÅÏÈ´¦Àí£¬½ûÖ¹Ñ¹ºÚÏß
+    if(black_flag != 0)
+    {
+        car_stop();
+        HAL_Delay(200);
+        car_backward();
+        HAL_Delay(300);
+        car_stop();
+        HAL_Delay(200);
 
-   // int left_enc = Encoder_Get_TIM2();
-   // int right_enc = Encoder_Get_TIM3();
+        if(black_flag == 1)
+        {
+            car_right();
+            HAL_Delay(400);
+        }
+        else if(black_flag == 2)
+        {
+            car_left();
+            HAL_Delay(400);
+        }
+        else if(black_flag == 3)
+        {
+            car_right();
+            HAL_Delay(600);
+        }
+        car_stop();
+    }
+    //Âß¼­2£ºÎÞºÚÏß£¬¼ì²âÇ°·½ÕÏ°­Îï±ÜÕÏ
+    else if(dist < OBSTACLE_DIST)
+    {
+        car_stop();
+        HAL_Delay(200);
+        car_backward();
+        HAL_Delay(300);
+        car_stop();
+        HAL_Delay(200);
+        car_left();
+        HAL_Delay(500);
+        car_stop();
+    }
+    //Âß¼­3£ºÎÞºÚÏßÎÞÕÏ°­Îï£¬Õý³£Ç°½ø
+    else
+    {
+        car_forward();
+    }
+    /*========================================================================*/
+    /* USER CODE END 3 */
+  }
+  /* USER CODE END WHILE */
+}
 
-  //  if(left_enc != last_L || right_enc != last_R)
